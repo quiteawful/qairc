@@ -3,6 +3,7 @@ package qairc
 import (
 	"bufio"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"net"
 	"strings"
@@ -37,6 +38,7 @@ type Engine struct {
 	control chan struct{} //to be extended
 	Socket  net.Conn
 	TLSCfg  *tls.Config
+	UseTLS  bool
 	Timeout time.Duration
 	Address string
 	Misc    Misc
@@ -80,9 +82,10 @@ func newEngine() (c *Engine) {
 		make(chan struct{}),
 		nil,
 		nil,
+		false,
 		1 * time.Minute,
 		"",
-		Misc{"qairc", "qairc", "qairc", "Qairc Golang Package"},
+		Misc{"qairc", "qairc", "qairc", "qairc", "Qairc Golang Package"},
 	}
 }
 
@@ -130,12 +133,12 @@ func (c *Engine) Stop() {
 func (c *Engine) Run() error {
 	var err error
 
-	if c.TLSCfg != nil {
-		if c.Socket, err = net.DialTimeout("tcp", c.Address, c.Timeout); err == nil {
-			c.Socket = tls.Client(c.Socket, c.TLSCfg)
-		} else {
-			return err
-		}
+	if err := c.checkSanity(); err != nil {
+		return err
+	}
+	if c.UseTLS == true {
+		dialer := &net.Dialer{Timeout: c.Timeout}
+		c.Socket, err = tls.DialWithDialer(dialer, "tcp", c.Address, c.TLSCfg)
 	} else {
 		c.Socket, err = net.DialTimeout("tcp", c.Address, c.Timeout)
 	}
@@ -150,6 +153,22 @@ func (c *Engine) Run() error {
 	c.In <- "NICK " + c.Misc.Nick + "\r\n"
 	c.In <- "USER " + c.Misc.RealName + " 0.0.0.0 0.0.0.0 :" + c.Misc.Description + "\r\n"
 
+	return nil
+}
+
+func (c *Engine) checkSanity() error {
+	if len(c.Misc.Nick) == 0 {
+		return errors.New("missing nick")
+	}
+	if len(c.Misc.RealName) == 0 {
+		return errors.New("missing realname")
+	}
+	if len(c.Address) == 0 {
+		return errors.New("missing serveraddress")
+	}
+	if strings.Count(c.Address, ":") != 1 || strings.Index(c.Address, ":") == len(c.Address)-1 {
+		return errors.New("missing port")
+	}
 	return nil
 }
 

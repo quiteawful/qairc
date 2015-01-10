@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"log"
 
 	"github.com/quiteawful/qairc"
@@ -8,7 +9,9 @@ import (
 
 func main() {
 	client := qairc.QAIrc("test1", "test2")
-	client.Address = "irc.quiteawful.net:6667"
+	client.Address = "irc.quiteawful.net:6697"
+	client.UseTLS = true
+	client.TLSCfg = &tls.Config{InsecureSkipVerify: true}
 
 	err := client.Run()
 	if err != nil {
