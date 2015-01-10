@@ -21,3 +21,6 @@ _testmain.go
 *.exe
 *.test
 *.prof
+
+#exclude exampleclient build
+exampleClient/exampleClient

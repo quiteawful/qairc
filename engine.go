@@ -43,7 +43,7 @@ func Parse(s string) Message {
 }
 
 func newEngine() (c *Engine) {
-	return &Engine{make(chan string),
+	return &Engine{make(chan Message),
 		make(chan string),
 		make(chan struct{}),
 		nil,
@@ -73,7 +73,7 @@ func (c *Engine) readloop() {
 				c.In <- "PONG" + s[4:]
 			}
 
-			c.Out <- s
+			c.Out <- Parse(s)
 		}
 	}
 }
