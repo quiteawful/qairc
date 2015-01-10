@@ -22,7 +22,7 @@ func main() {
 
 	log.Println("go!")
 	for {
-		m := qairc.Parse(<-client.Out)
+		m := <-client.Out
 		log.Println(m.Raw)
 	}
 }

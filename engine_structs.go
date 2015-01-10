@@ -29,7 +29,7 @@ type Misc struct {
 }
 
 type Engine struct {
-	Out     chan string   //From server
+	Out     chan Message  //From server
 	In      chan string   //To server
 	control chan struct{} //to be extended
 	Socket  net.Conn
