@@ -14,6 +14,7 @@ func main() {
 	client.TLSCfg = &tls.Config{InsecureSkipVerify: true}
 
 	err := client.Run()
+	log.Println(qairc.Numerics["005"])
 	if err != nil {
 		log.Println(err)
 		return

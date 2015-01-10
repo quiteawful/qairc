@@ -98,7 +98,7 @@ func (c *Engine) Stop() {
 
 func (c *Engine) Run() error {
 	var err error
-
+	initMap()
 	if err := c.checkSanity(); err != nil {
 		return err
 	}
