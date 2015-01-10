@@ -7,10 +7,10 @@ import (
 )
 
 func main() {
-	irc := qairc.New()
-	irc.Address = "irc.quiteawful.net:6667"
+	client := qairc.QAIrc("test1", "test2")
+	client.Address = "irc.quiteawful.net:6667"
 
-	err := irc.Run()
+	err := client.Run()
 	if err != nil {
 		log.Println(err)
 		return
@@ -18,7 +18,7 @@ func main() {
 
 	log.Println("go!")
 	for {
-		m := qairc.Parse(<-irc.Out)
+		m := qairc.Parse(<-client.Out)
 		log.Println(m.Raw)
 	}
 }

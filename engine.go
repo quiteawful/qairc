@@ -24,7 +24,8 @@ type Message struct {
 }
 
 type Misc struct {
-	InitNick    string
+	Nick        string
+	AltNick     string
 	ActualNick  string
 	RealName    string
 	Description string
@@ -73,7 +74,7 @@ func Parse(s string) Message {
 	return Message{args[0], args, s, Identity{"", "", "", ""}}
 }
 
-func New() (c *Engine) {
+func newEngine() (c *Engine) {
 	return &Engine{make(chan string),
 		make(chan string),
 		make(chan struct{}),
@@ -146,8 +147,18 @@ func (c *Engine) Run() error {
 	go c.readloop()
 	go c.writeloop()
 
-	c.In <- "NICK " + c.Misc.InitNick + "\r\n"
+	c.In <- "NICK " + c.Misc.Nick + "\r\n"
 	c.In <- "USER " + c.Misc.RealName + " 0.0.0.0 0.0.0.0 :" + c.Misc.Description + "\r\n"
 
 	return nil
+}
+
+func QAIrc(nick, user string) *Engine {
+	if len(nick) == 0 || len(user) == 0 {
+		return nil
+	}
+	q := newEngine()
+	q.Misc = Misc{Nick: nick, AltNick: nick + "_", RealName: nick}
+
+	return q
 }
