@@ -55,6 +55,10 @@ func newEngine() (c *Engine) {
 	}
 }
 
+func (c *Engine) SendRawf(format string, i ...interface{}) {
+	c.In <- fmt.Sprintf(format, i...) + "\r\n"
+}
+
 func (c *Engine) readloop() {
 	br := bufio.NewReaderSize(c.Socket, 1024)
 	for true {
