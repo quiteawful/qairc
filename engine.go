@@ -23,10 +23,18 @@ func ParseIdentity(idstr string) Identity {
 
 func Parse(s string) Message {
 	var args []string
+	//Messages come in two flavours:
+	//Either	":<nick>!<user>@<host> <type(arg0)> <arg1> <arg2>[ :<payload>]"
+	//or		"<type(arg0) :<payload>"
+	//distinguishable by the colon in front of "long" messages.
 	islong := s[0] == ':'
 
+	//The payload part is optional, so we need to check for the first
+	//occurence of " :"
 	p := strings.Index(s, " :")
 	if p > -1 {
+		//Lets drop the leading colon if it's a long message
+		//Either way we handle payload as an additional element of Message.Args
 		if islong {
 			args = append(strings.Split(s[1:p], " "), s[p+2:])
 		} else {
@@ -36,6 +44,7 @@ func Parse(s string) Message {
 		args = strings.Split(s[1:], " ")
 	}
 
+	//If it's a long message we need to parse the message source too
 	if islong {
 		return Message{args[1], args[2:], s, ParseIdentity(args[0])}
 	}
