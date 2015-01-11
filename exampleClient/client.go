@@ -26,11 +26,12 @@ func main() {
 		log.Println(m.Raw)
 
 		if m.Type == "001" {
-			client.Join("#qairc")
+			client.Join("#g0")
 
-			client.Privmsg("#qairc", "GO!")
+		}
 
-			client.Whois("philmacfly")
+		if m.Type == "CTCP" {
+			log.Println("CTCP received")
 		}
 	}
 }
