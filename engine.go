@@ -24,8 +24,8 @@ func ParseIdentity(idstr string) Identity {
 func Parse(s string) Message {
 	var args []string
 	//Messages come in two flavours:
-	//Either	":<nick>!<user>@<host> <type(arg0)> <arg1> <arg2>[ :<payload>]"
-	//or		"<type(arg0) :<payload>"
+	//Either	":<nick>!<user>@<host> <type(arg0)> <arg1> <arg2>[ <arg3>...][ :<payload>]"
+	//or		"<type(arg0)>[ :<payload>]" (not sure about the optional payload part tho)
 	//distinguishable by the colon in front of "long" messages.
 	islong := s[0] == ':'
 
