@@ -24,5 +24,13 @@ func main() {
 	for {
 		m := <-client.Out
 		log.Println(m.Raw)
+
+		if m.Type == "001" {
+			client.Join("#qairc")
+
+			client.Privmsg("#qairc", "GO!")
+
+			client.Whois("philmacfly")
+		}
 	}
 }

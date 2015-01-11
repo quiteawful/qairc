@@ -72,7 +72,6 @@ func (c *Engine) readloop() {
 			if len(s) > 4 && s[0:4] == "PING" {
 				c.In <- "PONG" + s[4:]
 			}
-
 			c.Out <- Parse(s)
 		}
 	}
