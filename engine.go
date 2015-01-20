@@ -57,9 +57,9 @@ func Parse(s string) Message {
 }
 
 func newEngine() (c *Engine) {
-	return &Engine{make(chan Message),
-		make(chan string),
-		make(chan struct{}),
+	return &Engine{nil,
+		nil,
+		nil,
 		nil,
 		nil,
 		false,
@@ -116,6 +116,9 @@ func (c *Engine) Stop() {
 func (c *Engine) Run() error {
 	var err error
 	initMap()
+	c.In = make(chan string)
+	c.Out = make(chan Message)
+	c.control = make(chan struct{})
 	if err := c.checkSanity(); err != nil {
 		return err
 	}
