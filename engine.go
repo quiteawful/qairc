@@ -84,6 +84,10 @@ func (c *Engine) readloop() {
 			s, err := br.ReadString('\n')
 			if err != nil {
 				fmt.Println(err)
+				// For the moment, consider any error here fatal
+				// and mash down hard on the mission abort button.
+				close(c.Out)
+				c.Stop()
 				return
 			}
 
