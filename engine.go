@@ -158,6 +158,9 @@ func (c *Engine) checkSanity() error {
 	if strings.Count(c.Address, ":") != 1 || strings.Index(c.Address, ":") == len(c.Address)-1 {
 		return errors.New("missing port")
 	}
+	if c.UseTLS && c.TLSCfg == nil {
+		return errors.New("missing TLSCfg.")
+	}
 	return nil
 }
 
