@@ -166,7 +166,7 @@ func QAIrc(nick, user string) *Engine {
 		return nil
 	}
 	q := newEngine()
-	q.Misc = Misc{Nick: nick, AltNick: nick + "_", RealName: nick}
+	q.Misc = Misc{Nick: nick, AltNick: nick + "_", RealName: user}
 
 	return q
 }
