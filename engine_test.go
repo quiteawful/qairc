@@ -27,5 +27,6 @@ func TestQAIrc(t *testing.T) {
 }
 
 func TestRun(t *testing.T) {
-
+	q := QAIRC("test", "test")
+	err := q.Run()
 }

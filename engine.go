@@ -26,8 +26,9 @@ func Parse(s string) Message {
 	//Messages come in two flavours:
 	//Either	":<nick>!<user>@<host> <type(arg0)> <arg1> <arg2>[ <arg3>...][ :<payload>]"
 	//or		"<type(arg0)>[ :<payload>]" (not sure about the optional payload part tho)
+	// :marduk!marduk@net-g6j7ih.clients.your-server.de PRIVMSG #g0 :asdf
 	//distinguishable by the colon in front of "long" messages.
-	islong := s[0] == ':'
+	islong := s[0] == ':' // long means PRIVMSG for example
 
 	//The payload part is optional, so we need to check for the first
 	//occurence of " :"
@@ -41,7 +42,9 @@ func Parse(s string) Message {
 			args = append(strings.Split(s[0:p], " "), s[p+2:])
 		}
 	} else {
-		args = strings.Split(s[1:], " ")
+		args = strings.Split(s[1:], " ") // why not s[0:]?
+		// this is the else tree, so p == -1 or less. so s contains no leading :
+		// so why start at s[1:] and not s[0:] ????
 	}
 
 	//If it's a long message we need to parse the message source too
@@ -52,7 +55,7 @@ func Parse(s string) Message {
 		}
 		return Message{args[1], args[2:], s, ParseIdentity(args[0])}
 	}
-	return Message{args[0], args, s, Identity{"", "", "", ""}}
+	return Message{args[0], args, s, Identity{"", "", "", ""}} // why args and not args[1:]?
 }
 
 func newEngine() (c *Engine) {
