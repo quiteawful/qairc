@@ -47,7 +47,6 @@ func Parse(s string) Message {
 	//If it's a long message we need to parse the message source too
 	if islong {
 		//CTCP: PRIVMSG ((target):^A ((command>) ((value)^A
-		fmt.Println("args[3] is", len(args))
 		if args[1] == "PRIVMSG" && len(args) > 2 && strings.HasPrefix(args[3], "\x01") {
 			args[1] = "CTCP"
 		}
