@@ -27,11 +27,14 @@ func main() {
 
 		if m.Type == "001" {
 			client.Join("#g0")
-
 		}
 
-		if m.Type == "CTCP" {
+		if m.IsCTCP() {
 			log.Println("CTCP received")
+		}
+
+		if m.IsPrivMsg() {
+			log.Println(m.GetPrivmsg())
 		}
 	}
 }

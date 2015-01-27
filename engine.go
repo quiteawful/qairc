@@ -42,9 +42,7 @@ func Parse(s string) Message {
 			args = append(strings.Split(s[0:p], " "), s[p+2:])
 		}
 	} else {
-		args = strings.Split(s[1:], " ") // why not s[0:]?
-		// this is the else tree, so p == -1 or less. so s contains no leading :
-		// so why start at s[1:] and not s[0:] ????
+		args = strings.Split(s[1:], " ")
 	}
 
 	//If it's a long message we need to parse the message source too
@@ -56,6 +54,30 @@ func Parse(s string) Message {
 		return Message{args[1], args[2:], s, ParseIdentity(args[0])}
 	}
 	return Message{args[0], args, s, Identity{"", "", "", ""}} // why args and not args[1:]?
+}
+
+func (m *Message) GetPrivmsg() string {
+	if m.Type != "PRIVMSG" {
+		return ""
+	}
+	return strings.Join(m.Args[1:], " ")
+}
+
+func (m *Message) GetChannel() string {
+	// not sure if the channel is always in Args[0]
+	// but if m.Type == privmsg then chanelname is always
+	// in Args[0]
+	if m.IsPrivmsg() {
+		return m.Args[0]
+	}
+}
+
+func (m *Message) IsPrivmsg() bool {
+	return m.Type == "PRIVMSG"
+}
+
+func (m *Message) IsCTCP() bool {
+	return m.Type == "CTCP"
 }
 
 func newEngine() (c *Engine) {
