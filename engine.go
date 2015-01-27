@@ -70,6 +70,7 @@ func (m *Message) GetChannel() string {
 	if m.IsPrivmsg() {
 		return m.Args[0]
 	}
+	return ""
 }
 
 func (m *Message) IsPrivmsg() bool {
