@@ -34,6 +34,7 @@ type Engine struct {
 	Out     chan Message  //From server
 	In      chan string   //To server
 	control chan struct{} //to be extended
+
 	Socket  net.Conn
 	TLSCfg  *tls.Config
 	UseTLS  bool

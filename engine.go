@@ -66,7 +66,7 @@ func (m *Message) GetPrivmsg() string {
 	if m.Type != "PRIVMSG" {
 		return ""
 	}
-	return strings.Join(m.Args[1:], " ")
+	return strings.TrimSpace(strings.Join(m.Args[1:], " "))
 }
 
 // Returns the channel a message was sent to
@@ -118,7 +118,6 @@ func (c *Engine) readloop() {
 		select {
 		case <-c.control:
 			close(c.Out)
-			log.Println("closing readloop")
 			return
 		default:
 			s, err := br.ReadString('\n')
