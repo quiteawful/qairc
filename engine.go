@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"log"
 	"net"
 	"strings"
 	"time"
@@ -92,15 +93,16 @@ func (m *Message) IsCTCP() bool {
 
 // Returns a new, empty Engine
 func newEngine() (c *Engine) {
-	return &Engine{nil,
-		nil,
-		nil,
-		nil,
-		nil,
-		false,
-		1 * time.Minute,
-		"",
-		Misc{"qairc", "qairc", "qairc", "qairc", "Qairc Golang Package"},
+	return &Engine{
+		Out:     nil,
+		In:      nil,
+		control: nil,
+		Socket:  nil,
+		TLSCfg:  nil,
+		UseTLS:  false,
+		Timeout: 1 * time.Minute,
+		Address: "",
+		Misc:    Misc{"qairc", "qairc", "qairc", "qairc", "Qairc Golang Package"},
 	}
 }
 
@@ -110,23 +112,27 @@ func (c *Engine) SendRawf(format string, i ...interface{}) {
 }
 
 func (c *Engine) readloop() {
+	defer c.Done()
 	br := bufio.NewReaderSize(c.Socket, 1024)
-	for true {
+	for {
 		select {
 		case <-c.control:
 			close(c.Out)
+			log.Println("closing readloop")
 			return
 		default:
 			s, err := br.ReadString('\n')
 			if err != nil {
-				fmt.Println(err)
+				log.Println("Error in readloop():", err)
 				// For the moment, consider any error here fatal
 				// and mash down hard on the mission abort button.
 				close(c.Out)
 				c.Stop()
 				return
 			}
-
+			if c.Socket == nil {
+				log.Println("Socket is closed")
+			}
 			if len(s) > 4 && s[0:4] == "PING" {
 				c.In <- "PONG" + s[4:]
 			}
@@ -136,8 +142,9 @@ func (c *Engine) readloop() {
 }
 
 func (c *Engine) writeloop() {
+	defer c.Done()
 	bw := bufio.NewWriterSize(c.Socket, 1024)
-	for true {
+	for {
 		select {
 		case msgin := <-c.In:
 			bw.WriteString(msgin)
@@ -152,6 +159,11 @@ func (c *Engine) writeloop() {
 // Closes the control channel and gracefully disconnects from the server
 func (c *Engine) Stop() {
 	close(c.control)
+}
+
+func (c *Engine) Reconnect() {
+	c.Wait()
+	c.Run()
 }
 
 // Connects to the server using the given configuration.
@@ -175,7 +187,7 @@ func (c *Engine) Run() error {
 	if err != nil {
 		return err
 	}
-
+	c.Add(2)
 	go c.readloop()
 	go c.writeloop()
 

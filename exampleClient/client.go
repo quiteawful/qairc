@@ -22,13 +22,16 @@ func main() {
 
 	log.Println("go!")
 	for {
-		m := <-client.Out
-		log.Println(m.Raw)
+		m, status := <-client.Out
+		if !status {
+			log.Println("Out closed, exiting")
+			client.Reconnect()
+		}
+		//		log.Println("-->", m.Raw)
 
 		if m.Type == "001" {
 			client.Join("#g0")
 		}
-
 		if m.IsCTCP() {
 			log.Println("CTCP received")
 		}
