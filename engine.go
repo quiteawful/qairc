@@ -10,6 +10,7 @@ import (
 	"time"
 )
 
+// Parses an identity string to a struct
 func ParseIdentity(idstr string) Identity {
 	if strings.Contains(idstr, "!") && strings.Contains(idstr, "@") {
 		nick := strings.Split(idstr, "!")[0]
@@ -21,6 +22,8 @@ func ParseIdentity(idstr string) Identity {
 	return Identity{"", "", idstr, idstr}
 }
 
+// Parses a raw string and return a Message struct
+// TODO: should this really be exported?
 func Parse(s string) Message {
 	var args []string
 	//Messages come in two flavours:
@@ -56,6 +59,8 @@ func Parse(s string) Message {
 	return Message{args[0], args, s, Identity{"", "", "", ""}} // why args and not args[1:]?
 }
 
+// Returns a string, if the messagetype ist PRIVMSG
+// TODO: shouldm't it return an error instead of an empty string?
 func (m *Message) GetPrivmsg() string {
 	if m.Type != "PRIVMSG" {
 		return ""
@@ -63,24 +68,29 @@ func (m *Message) GetPrivmsg() string {
 	return strings.Join(m.Args[1:], " ")
 }
 
+// Returns the channel a message was sent to
 func (m *Message) GetChannel() string {
 	// not sure if the channel is always in Args[0]
 	// but if m.Type == privmsg then chanelname is always
 	// in Args[0]
+	// TODO: that assumption is simply wrong.
 	if m.IsPrivmsg() {
 		return m.Args[0]
 	}
 	return ""
 }
 
+// Returns true, if the messagetype is PRIVMSG
 func (m *Message) IsPrivmsg() bool {
 	return m.Type == "PRIVMSG"
 }
 
+// Returns true, if the messagetype is CTCP
 func (m *Message) IsCTCP() bool {
 	return m.Type == "CTCP"
 }
 
+// Returns a new, empty Engine
 func newEngine() (c *Engine) {
 	return &Engine{nil,
 		nil,
@@ -94,6 +104,7 @@ func newEngine() (c *Engine) {
 	}
 }
 
+// Sends a raw formated string
 func (c *Engine) SendRawf(format string, i ...interface{}) {
 	c.In <- fmt.Sprintf(format, i...) + "\r\n"
 }
@@ -138,10 +149,13 @@ func (c *Engine) writeloop() {
 	}
 }
 
+// Closes the control channel and gracefully disconnects from the server
 func (c *Engine) Stop() {
 	close(c.control)
 }
 
+// Connects to the server using the given configuration.
+// returns nil if everything went OK, an error otherwise.
 func (c *Engine) Run() error {
 	var err error
 	initMap()
@@ -190,6 +204,8 @@ func (c *Engine) checkSanity() error {
 	return nil
 }
 
+// Return a new Engine with given configuration,
+// nil if something went wrong
 func QAIrc(nick, user string) *Engine {
 	if len(nick) == 0 || len(user) == 0 {
 		return nil

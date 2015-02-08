@@ -32,8 +32,7 @@ func main() {
 		if m.IsCTCP() {
 			log.Println("CTCP received")
 		}
-
-		if m.IsPrivMsg() {
+		if m.IsPrivmsg() {
 			log.Println(m.GetPrivmsg())
 		}
 	}
