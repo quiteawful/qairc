@@ -55,9 +55,9 @@ func Parse(s string) Message {
 		if args[1] == "PRIVMSG" && len(args) > 2 && strings.HasPrefix(args[3], "\x01") {
 			args[1] = "CTCP"
 		}
-		return Message{args[1], args[2:], s, ParseIdentity(args[0])}
+		return Message{time.Now(), args[1], args[2:], s, ParseIdentity(args[0])}
 	}
-	return Message{args[0], args, s, Identity{"", "", "", ""}} // why args and not args[1:]?
+	return Message{time.Now(), args[0], args, s, Identity{"", "", "", ""}} // why args and not args[1:]?
 }
 
 // Returns a string, if the messagetype ist PRIVMSG

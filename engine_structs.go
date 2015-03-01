@@ -15,10 +15,11 @@ type Identity struct {
 }
 
 type Message struct {
-	Type   string
-	Args   []string
-	Raw    string
-	Sender Identity
+	Timestamp time.Time
+	Type      string
+	Args      []string
+	Raw       string
+	Sender    Identity
 }
 
 type Misc struct {

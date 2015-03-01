@@ -4,7 +4,7 @@ import (
 	"crypto/tls"
 	"log"
 
-	"github.com/quiteawful/qairc"
+	"qairc"
 )
 
 func main() {
@@ -25,18 +25,19 @@ func main() {
 		m, status := <-client.Out
 		if !status {
 			log.Println("Out closed, exiting")
-			client.Reconnect()
+			//client.Reconnect() this is still unimplemeneted
+			return //abort
 		}
-		//		log.Println("-->", m.Raw)
 
 		if m.Type == "001" {
 			client.Join("#g0")
 		}
-		if m.IsCTCP() {
-			log.Println("CTCP received")
-		}
-		if m.IsPrivmsg() {
-			log.Println(m.GetPrivmsg())
+		if m.Type == "PRIVMSG" {
+			l := len(m.Args)
+			log.Println(m.Sender)
+			log.Println(m.Timestamp)
+			log.Println(m.Args[0 : l-1])
+			log.Println(m.Args[l-1])
 		}
 	}
 }
