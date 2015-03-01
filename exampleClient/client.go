@@ -25,8 +25,7 @@ func main() {
 		m, status := <-client.Out
 		if !status {
 			log.Println("Out closed, exiting")
-			//client.Reconnect() this is still unimplemeneted
-			return //abort
+			client.Reconnect()
 		}
 
 		if m.Type == "001" {
