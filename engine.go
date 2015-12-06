@@ -191,7 +191,7 @@ func (c *Engine) Run() error {
 	go c.writeloop()
 
 	c.In <- "NICK " + c.Misc.Nick + "\r\n"
-	c.In <- "USER " + c.Misc.RealName + " 0.0.0.0 0.0.0.0 :" + c.Misc.Description + "\r\n"
+	c.In <- "USER " + c.Misc.Nick + " 0.0.0.0 0.0.0.0 :" + c.Misc.RealName + "\r\n"
 
 	return nil
 }

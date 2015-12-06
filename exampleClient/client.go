@@ -12,7 +12,6 @@ func main() {
 	client.Address = "irc.quiteawful.net:6697"
 	client.UseTLS = true
 	client.TLSCfg = &tls.Config{InsecureSkipVerify: true}
-
 	err := client.Run()
 	log.Println(qairc.Numerics["005"])
 	if err != nil {
