@@ -12,6 +12,7 @@ import (
 )
 
 // Parses an identity string to a struct
+// TODO: Does this need to be externally visible?
 func ParseIdentity(idstr string) Identity {
 	if strings.Contains(idstr, "!") && strings.Contains(idstr, "@") {
 		nick := strings.Split(idstr, "!")[0]
@@ -24,8 +25,7 @@ func ParseIdentity(idstr string) Identity {
 }
 
 // Parses a raw string and return a Message struct
-// TODO: should this really be exported?
-func Parse(s string) Message {
+func parse(s string) Message {
 	var args []string
 	//Messages come in two flavours:
 	//Either	":<nick>!<user>@<host> <type(arg0)> <arg1> <arg2>[ <arg3>...][ :<payload>]"
@@ -41,9 +41,9 @@ func Parse(s string) Message {
 		//Lets drop the leading colon if it's a long message
 		//Either way we handle payload as an additional element of Message.Args
 		if islong {
-			args = append(strings.Split(s[1:p], " "), s[p+2:])
+			args = append(strings.Split(s[1:p], " "), s[p + 2:])
 		} else {
-			args = append(strings.Split(s[0:p], " "), s[p+2:])
+			args = append(strings.Split(s[0:p], " "), s[p + 2:])
 		}
 	} else {
 		args = strings.Split(s[1:], " ")
@@ -61,12 +61,11 @@ func Parse(s string) Message {
 }
 
 // Returns a string, if the messagetype ist PRIVMSG
-// TODO: shouldm't it return an error instead of an empty string?
-func (m *Message) GetPrivmsg() string {
+func (m *Message) GetPrivmsg() (string, error) {
 	if m.Type != "PRIVMSG" {
-		return ""
+		return "", errors.New("Not a PRIVMSG")
 	}
-	return strings.TrimSpace(strings.Join(m.Args[1:], " "))
+	return strings.TrimSpace(strings.Join(m.Args[1:], " ")), nil
 }
 
 // Returns the channel a message was sent to
@@ -75,6 +74,10 @@ func (m *Message) GetChannel() string {
 	// but if m.Type == privmsg then chanelname is always
 	// in Args[0]
 	// TODO: that assumption is simply wrong.
+	// There exists at least one contradictory case:
+	// m.Type is PRIVMSG and recipient is a single client
+	// It is necessary to parse and store the channel prefixes
+	// received in one of the 005 incoming messages
 	if m.IsPrivmsg() {
 		return m.Args[0]
 	}
@@ -135,7 +138,7 @@ func (c *Engine) readloop() {
 			if len(s) > 4 && s[0:4] == "PING" {
 				c.In <- "PONG" + s[4:]
 			}
-			c.Out <- Parse(s)
+			c.Out <- parse(s)
 		}
 	}
 }
@@ -206,7 +209,7 @@ func (c *Engine) checkSanity() error {
 	if len(c.Address) == 0 {
 		return errors.New("missing serveraddress")
 	}
-	if strings.Count(c.Address, ":") != 1 || strings.Index(c.Address, ":") == len(c.Address)-1 {
+	if strings.Count(c.Address, ":") != 1 || strings.Index(c.Address, ":") == len(c.Address) - 1 {
 		return errors.New("missing port")
 	}
 	if c.UseTLS && c.TLSCfg == nil {
